@@ -307,7 +307,8 @@ contract SocialToken is ERC20 {
   string public constant symbol = "SDT";
   uint8 public constant decimals = 18;
 
-  uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
+  //uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals)); is it in Wei?
+  uint256 public constant INITIAL_SUPPLY = uint256(3000000000000);//3 trillions = 3*10^12;
   uint256 public priceOfOneTokenInWei = 0.0001;
 
   /**
