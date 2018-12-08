@@ -308,8 +308,13 @@ contract SocialToken is ERC20 {
   uint8 public constant decimals = 18;
 
   //uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals)); is it in Wei?
-  uint256 public constant INITIAL_SUPPLY = uint256(3000000000000);//3 trillions = 3*10^12;
-  uint256 public priceOfOneTokenInWei = 0.0001;
+  uint256 public constant INITIAL_SUPPLY = uint256(3000000000000);//3 trillions = 3*10^12; tokens or Wei?
+  uint256 public priceOfOneTokenInWei = 1000000000000; //1000000000000 Wei = 0.000001 Ether = 0.0001 Euro
+  uint256 public userCounter = 0;
+
+  //TODO: count the bigest value for uint256
+  uint8 public transferedMillions
+  uint256 transferedValue = 0;
 
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
@@ -317,5 +322,15 @@ contract SocialToken is ERC20 {
   constructor() public {
     _mint(msg.sender, INITIAL_SUPPLY);
   }
+
+	function registerUser(address newUserAddress) public {
+    //give to user tokens or Wei?
+    uint256 amount = 10000
+    transfer(newUserAddress, amount);
+    userCounter.add(1);
+
+    //TODO:
+    transferedValue.add(amount);
+	}
 
 }
