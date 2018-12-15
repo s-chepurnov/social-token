@@ -295,26 +295,48 @@ contract ERC20 is IERC20 {
   }
 }
 
+contract owned {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function transferOwnership(address newOwner) onlyOwner public {
+        owner = newOwner;
+    }
+}
+
 /**
  * @title SocialToken
  * @dev Very simple ERC20 Token example, where all tokens are pre-assigned to the creator.
  * Note they can later distribute these tokens as they wish using `transfer` and other
  * `ERC20` functions.
+ * One Ether is 1000000000000000000 wei
+ *
  */
-contract SocialToken is ERC20 {
+contract SocialToken is ERC20, owned {
 
   string public constant name = "SocialToken";
   string public constant symbol = "SDT";
-  uint8 public constant decimals = 18;
 
-  //uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals)); is it in Wei?
-  uint256 public constant INITIAL_SUPPLY = uint256(3000000000000);//3 trillions = 3*10^12; tokens or Wei?
-  uint256 public priceOfOneTokenInWei = 1000000000000; //1000000000000 Wei = 0.000001 Ether = 0.0001 Euro
+  uint8 public constant decimals = 12;
+  uint256 public constant INITIAL_SUPPLY = 3000000000000 * (10 ** uint256(decimals));
+
+  //1000000000000 Wei = 0.000001 Ether = 0.0001 Euro
+  uint256 public priceOfOneTokenInWei = 1000000000000;
   uint256 public userCounter = 0;
 
   //TODO: count the bigest value for uint256
-  uint8 public transferedMillions
+  uint8 public transferedMillions=0;
   uint256 transferedValue = 0;
+
+  uint8 counterInvestment = 1;
 
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
@@ -323,14 +345,45 @@ contract SocialToken is ERC20 {
     _mint(msg.sender, INITIAL_SUPPLY);
   }
 
-	function registerUser(address newUserAddress) public {
-    //give to user tokens or Wei?
-    uint256 amount = 10000
-    transfer(newUserAddress, amount);
-    userCounter.add(1);
+  function trackTransfer(address to, uint256 amount) {
+    transfer(to, amount);
 
-    //TODO:
+    //TODO: 1 000 000 Euro = 10 000 ETH = 1 000 000 000 000 000 000 000 0 Wei
     transferedValue.add(amount);
-	}
+    if(transferedValue > 10000000000000000000000) {
+      increasePrice();
+    }
+    //event
+
+  }
+
+  function registerUser(address newUserAddress) public {
+    //give to user tokens or Wei?
+    uint256 amount = 10000;
+    trackTransfer(newUserAddress, amount);
+
+    userCounter.add(1);
+    increasePrice();
+    //event
+  }
+
+  // if (1 ETH == 100 EUR    emit Transfer(account, address(0), amount);
+)
+  // increase price by
+  // 0.000001 Euro -> 0.00000001 Ether -> 1 000 000 000 0 Wei
+  function increasePrice() {
+      priceOfOneTokenInWei.add(10000000000);
+      //event()
+  }
+
+  function registerInvestment() onlyOwner public {
+    counterInvestment.add(1);
+    increasePrice();
+    //event()
+  }
+
+  function getTestAmount() public returns uint256 {
+    return 3000000000000 * (10 ** uint256(decimals));
+  }
 
 }
