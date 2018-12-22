@@ -317,8 +317,9 @@ contract owned {
  * @dev Very simple ERC20 Token example, where all tokens are pre-assigned to the creator.
  * Note they can later distribute these tokens as they wish using `transfer` and other
  * `ERC20` functions.
+ * if (1 ETH == 100 EUR)
+ * increase price by
  * One Ether is 1000000000000000000 wei
- *
  */
 contract SocialToken is ERC20, owned {
 
@@ -328,15 +329,16 @@ contract SocialToken is ERC20, owned {
   uint8 public constant decimals = 12;
   uint256 public constant INITIAL_SUPPLY = 3000000000000 * (10 ** uint256(decimals));
 
-  //1000000000000 Wei = 0.000001 Ether = 0.0001 Euro
+  //0.0001 Euro = 0.000001 Ether = 1000000000000 Wei
   uint256 public priceOfOneTokenInWei = 1000000000000;
-  uint256 public userCounter = 0;
+  uint256 private userCounter = 0;
 
-  //TODO: count the bigest value for uint256
-  uint8 public transferedMillions=0;
-  uint256 transferedValue = 0;
+  uint32 public transferedPeriod = 0;
+  uint256 public transferedValue = 0;
 
-  uint8 counterInvestment = 1;
+  uint8 public counterInvestment = 1;
+
+  mapping (address => bool) private registeredUsers;
 
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
@@ -348,42 +350,63 @@ contract SocialToken is ERC20, owned {
   function trackTransfer(address to, uint256 amount) {
     transfer(to, amount);
 
-    //TODO: 1 000 000 Euro = 10 000 ETH = 1 000 000 000 000 000 000 000 0 Wei
-    transferedValue.add(amount);
-    if(transferedValue > 10000000000000000000000) {
+    //1 000 000 Euro = 10 000 ETH = 1 000 000 000 000 000 000 000 0 Wei
+    transferedValue = transferedValue.add(amount);
+    if(transferedValue >= 10000000000000000000000) {
       increasePrice();
+
+      transferedValue = transferedValue.sub(10000000000000000000000);
+      transferedPeriod = transferedPeriod.add(1);
     }
     //event
 
   }
 
+  //TODO: find out -> give to user tokens or Wei?
   function registerUser(address newUserAddress) public {
-    //give to user tokens or Wei?
+    if (registeredUsers[newUserAddress] == true) {
+      return;
+    }
+
     uint256 amount = 10000;
     trackTransfer(newUserAddress, amount);
 
-    userCounter.add(1);
+    userCount = userCounter.add(1);
     increasePrice();
+    registeredUsers[newUserAddress] = true;
     //event
   }
 
-  // if (1 ETH == 100 EUR    emit Transfer(account, address(0), amount);
-)
-  // increase price by
   // 0.000001 Euro -> 0.00000001 Ether -> 1 000 000 000 0 Wei
   function increasePrice() {
-      priceOfOneTokenInWei.add(10000000000);
+      priceOfOneTokenInWei = priceOfOneTokenInWei.add(10000000000);
       //event()
   }
 
   function registerInvestment() onlyOwner public {
-    counterInvestment.add(1);
+    counterInvestment = counterInvestment.add(1);
     increasePrice();
     //event()
   }
 
-  function getTestAmount() public returns uint256 {
-    return 3000000000000 * (10 ** uint256(decimals));
+  //TODO: implement it
+  function buy() payable returns (uint amount) {
+    uint amount = msg.value/priceOfOneTokenInWei;
+    trackTransfer(address(this), msg.sender, amount);
+  }
+
+  //TODO: implement it
+  // read: https://github.com/ethereum/solidity/issues/3115
+  function sell(uint256 amount) public  returns(uint revenue) {
+    //require(address(this).balance >= amount * priceOfOneTokenInWei); // checks if the contract has enough ether to buy
+
+    trackTransfer(msg.sender, this, amount);              // makes the transfers
+    msg.sender.transfer(amount * priceOfOneTokenInWei);   // sends ether to the seller. It's important to do this last to avoid recursion attacks
+
+    revenue = amount * priceOfOneTokenInWei;
+    //event
+    return revenue;
+
   }
 
 }
