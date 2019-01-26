@@ -325,19 +325,15 @@ contract SocialToken is ERC20, owned {
 
   string public constant name = "SocialToken";
   string public constant symbol = "SDT";
-
   uint8 public constant decimals = 12;
   uint256 public constant INITIAL_SUPPLY = 3000000000000 * (10 ** uint256(decimals));
 
   //0.0001 Euro = 0.000001 Ether = 1000000000000 Wei
   uint256 public priceOfOneTokenInWei = 1000000000000;
   uint256 private userCounter = 0;
-
   uint256 public transferedPeriod = 0; //uint32 possible
   uint256 public transferedValue = 0;
-
   uint256 public counterInvestment = 1; //uint8 possible
-
   mapping (address => bool) private registeredUsers;
 
   /**
@@ -346,6 +342,13 @@ contract SocialToken is ERC20, owned {
   constructor() public {
     _mint(msg.sender, INITIAL_SUPPLY);
   }
+
+  event TrackTransfer(
+    address indexed to,
+    uint256 amount,
+    uint256 transferedValue,
+    uint256 transferedPeriod
+  );
 
   function trackTransfer(address to, uint256 amount) internal {
     transfer(to, amount);
@@ -358,9 +361,14 @@ contract SocialToken is ERC20, owned {
       transferedValue = transferedValue.sub(10000000000000000000000);
       transferedPeriod = transferedPeriod.add(1);
     }
-    //event
 
+    emit TrackTransfer(to, amount, transferedValue, transferedPeriod);
   }
+
+  event RegisterUser(
+    address indexed newUserAddress,
+    uint256 userCounter
+  );
 
   //TODO: find out -> give to user tokens or Wei?
   function registerUser(address newUserAddress) public {
@@ -374,33 +382,62 @@ contract SocialToken is ERC20, owned {
     userCounter = userCounter.add(1);
     increasePrice();
     registeredUsers[newUserAddress] = true;
-    //event
+    emit RegisterUser(newUserAddress, userCounter);
   }
+
+  event IncreasePrice(
+    uint256 userCounter
+  );
 
   // 0.000001 Euro -> 0.00000001 Ether -> 1 000 000 000 0 Wei
   function increasePrice() internal {
       priceOfOneTokenInWei = priceOfOneTokenInWei.add(10000000000);
-      //event()
+
+      emit IncreasePrice(priceOfOneTokenInWei);
   }
+
+  event RegisterInvestment(
+    address indexed owner,
+    uint256 userCounter
+  );
 
   function registerInvestment() onlyOwner public {
     counterInvestment = counterInvestment.add(1);
     increasePrice();
-    //event()
+
+    emit RegisterInvestment(msg.owner, counterInvestment);
   }
+
+  event Buy(
+    uint256 amount,
+    uint256 priceOfOneTokenInWei,
+    address indexed sender
+  );
 
   function buy() payable public returns (uint amount) {
     amount = msg.value/priceOfOneTokenInWei;
     trackTransfer(msg.sender, amount);
+
+    emit Buy(amount, priceOfOneTokenInWei, sender);
     return amount;
   }
+
+  event Sell(
+    uint256 amount,
+    uint256 revenue,
+    uint256 priceOfOneTokenInWei,
+    address indexed sender
+  );
 
   // read: https://github.com/ethereum/solidity/issues/3115
   function sell(uint256 amount) public returns(uint revenue) {
     trackTransfer(this, amount);              // makes the transfers
+
+    //TODO: does it works? or should use the trackTransfer() ?
     msg.sender.transfer(amount * priceOfOneTokenInWei);   // sends ether to the seller. It's important to do this last to avoid recursion attacks
     revenue = amount * priceOfOneTokenInWei;
-    //event
+
+    emit Sell(amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;
   }
 

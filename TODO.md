@@ -17,4 +17,10 @@
 
 Current task or last step description:
 
-implement buy(), sell() functions
+-implement buy(), sell() functions: msg.sender.transfer is it working?
+-analyze registerNewUser() for attacks
+-implement EventLogs
+-check if this token will be available in wallet with correct price and name
+-test everything
+-create front-end for this project
+-IDE for solidity with syntax highlighting (Vim with solidity plugin?)
