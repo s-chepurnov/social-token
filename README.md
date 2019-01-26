@@ -1,1 +1,14 @@
 # social-token
+
+test
+contract address
+0x692a70d2e424a56d2c6c27aa97d1a86395877b3a
+
+user1 address
+0xbbf289d846208c16edc8474705c748aff07732db
+
+user2 address
+0x702a70d2e424a56d2c6c27aa97d1a86395877b3a
+
+user3 address
+0x712a70d2e424a56d2c6c27aa97d1a86395877b3a

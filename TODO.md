@@ -17,10 +17,11 @@
 
 Current task or last step description:
 
+-test contract with test data from readme.md
+-check if this token will be available in wallet with correct price and name
 -implement buy(), sell() functions: msg.sender.transfer is it working?
 -analyze registerNewUser() for attacks
--implement EventLogs
--check if this token will be available in wallet with correct price and name
 -test everything
 -create front-end for this project
 -IDE for solidity with syntax highlighting (Vim with solidity plugin?)
+-const price in EUR, how to implement it?
