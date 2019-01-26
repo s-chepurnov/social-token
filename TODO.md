@@ -6,6 +6,7 @@
 - every new user; price+=+0,000001E
 - every new contract || investment project; price+=0,000001E
 - every 1 000 000E transactions; price+=0,000001E
+3. New user get 10 000 tokens for free
 
 3. Token emission or transactions?
 4. Token on Ethereum or our own blockchain
@@ -14,3 +15,6 @@
 5. User couldnot spend their own tokens but only give to children?
 
 
+Current task or last step description:
+
+implement buy(), sell() functions

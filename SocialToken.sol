@@ -333,10 +333,10 @@ contract SocialToken is ERC20, owned {
   uint256 public priceOfOneTokenInWei = 1000000000000;
   uint256 private userCounter = 0;
 
-  uint32 public transferedPeriod = 0;
+  uint256 public transferedPeriod = 0; //uint32 possible
   uint256 public transferedValue = 0;
 
-  uint8 public counterInvestment = 1;
+  uint256 public counterInvestment = 1; //uint8 possible
 
   mapping (address => bool) private registeredUsers;
 
@@ -347,7 +347,7 @@ contract SocialToken is ERC20, owned {
     _mint(msg.sender, INITIAL_SUPPLY);
   }
 
-  function trackTransfer(address to, uint256 amount) {
+  function trackTransfer(address to, uint256 amount) internal {
     transfer(to, amount);
 
     //1 000 000 Euro = 10 000 ETH = 1 000 000 000 000 000 000 000 0 Wei
@@ -371,14 +371,14 @@ contract SocialToken is ERC20, owned {
     uint256 amount = 10000;
     trackTransfer(newUserAddress, amount);
 
-    userCount = userCounter.add(1);
+    userCounter = userCounter.add(1);
     increasePrice();
     registeredUsers[newUserAddress] = true;
     //event
   }
 
   // 0.000001 Euro -> 0.00000001 Ether -> 1 000 000 000 0 Wei
-  function increasePrice() {
+  function increasePrice() internal {
       priceOfOneTokenInWei = priceOfOneTokenInWei.add(10000000000);
       //event()
   }
@@ -389,24 +389,19 @@ contract SocialToken is ERC20, owned {
     //event()
   }
 
-  //TODO: implement it
-  function buy() payable returns (uint amount) {
-    uint amount = msg.value/priceOfOneTokenInWei;
-    trackTransfer(address(this), msg.sender, amount);
+  function buy() payable public returns (uint amount) {
+    amount = msg.value/priceOfOneTokenInWei;
+    trackTransfer(msg.sender, amount);
+    return amount;
   }
 
-  //TODO: implement it
   // read: https://github.com/ethereum/solidity/issues/3115
-  function sell(uint256 amount) public  returns(uint revenue) {
-    //require(address(this).balance >= amount * priceOfOneTokenInWei); // checks if the contract has enough ether to buy
-
-    trackTransfer(msg.sender, this, amount);              // makes the transfers
+  function sell(uint256 amount) public returns(uint revenue) {
+    trackTransfer(this, amount);              // makes the transfers
     msg.sender.transfer(amount * priceOfOneTokenInWei);   // sends ether to the seller. It's important to do this last to avoid recursion attacks
-
     revenue = amount * priceOfOneTokenInWei;
     //event
     return revenue;
-
   }
 
 }
