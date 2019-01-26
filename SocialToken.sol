@@ -405,7 +405,7 @@ contract SocialToken is ERC20, owned {
     counterInvestment = counterInvestment.add(1);
     increasePrice();
 
-    emit RegisterInvestment(msg.owner, counterInvestment);
+    emit RegisterInvestment(msg.sender, counterInvestment);
   }
 
   event Buy(
@@ -418,7 +418,7 @@ contract SocialToken is ERC20, owned {
     amount = msg.value/priceOfOneTokenInWei;
     trackTransfer(msg.sender, amount);
 
-    emit Buy(amount, priceOfOneTokenInWei, sender);
+    emit Buy(amount, priceOfOneTokenInWei, msg.sender);
     return amount;
   }
 
