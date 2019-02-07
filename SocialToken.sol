@@ -1,5 +1,9 @@
 pragma solidity ^0.4.24;
 
+import "https://github.com/s-chepurnov/social-token/blob/master/SafeMath.sol";
+import "https://github.com/s-chepurnov/social-token/blob/master/ERC20.sol";
+import "https://github.com/s-chepurnov/social-token/blob/master/owned.sol";
+
 /**
  * @title SocialToken
  * @dev Very simple ERC20 Token example, where all tokens are pre-assigned to the creator.
