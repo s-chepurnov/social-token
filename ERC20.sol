@@ -1,3 +1,6 @@
+pragma solidity ^0.4.24;
+
+import "github.com/s-chepurnov/social-token/SafeMath.sol";
 
 /**
  * @title ERC20 interface

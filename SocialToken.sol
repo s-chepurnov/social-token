@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "https://github.com/s-chepurnov/social-token/blob/master/SafeMath.sol";
-import "https://github.com/s-chepurnov/social-token/blob/master/ERC20.sol";
-import "https://github.com/s-chepurnov/social-token/blob/master/owned.sol";
+import "github.com/s-chepurnov/social-token/SafeMath.sol";
+import "github.com/s-chepurnov/social-token/ERC20.sol";
+import "github.com/s-chepurnov/social-token/owned.sol";
 
 /**
  * @title SocialToken
