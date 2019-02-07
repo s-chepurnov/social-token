@@ -1,4 +1,4 @@
-//TODO:
+I.//TODO:
 1. introduce PRICE variable
 - (init val = 0,0001E)
 - total supply = uint256(3000000000000); 3trillions || 3*(10^12);
@@ -6,24 +6,26 @@
 - every new user; price+=+0,000001E
 - every new contract || investment project; price+=0,000001E
 - every 1 000 000E transactions; price+=0,000001E
-3. New user get 10 000 tokens for free
+3. New user get 10 000 tokens for free?
+3. Token emission, send to addresses then give addresses to people for free?
 
-3. Token emission or transactions?
-4. Token on Ethereum or our own blockchain
--how to make free transactions on Ethereum
--how to make free transactions on our own Blockchain
-5. User could not spend their own tokens but only give to children?
-6. User could spend only 1/4 of their tokens in a year
-7. Foundation could spend only 1/4 of the fund in a year  
+4?. User could not spend their own tokens but only give to children?
+5?. User could spend only 1/4 of their tokens in a year
+6?. Foundation could spend only 1/4 of the fund in a year  
 
-Current task or last step description:
+II.Current task or last step description:
 
 -if user send last money, counter--
--test contract with test data from readme.md
--check if this token will be available in wallet with correct price and name
--implement buy(), sell() functions: msg.sender.transfer is it working?
--analyze registerNewUser() for attacks
--test everything
--create front-end for this project
--IDE for solidity with syntax highlighting (Vim with solidity plugin?)
+
 -const price in EUR, how to implement it?
+
+-test contract with test data from readme.md
+
+-check if this token will be available in wallet with correct price and name
+
+-implement buy(), sell() functions: msg.sender.transfer is it working?
+
+-analyze registerNewUser() for attacks
+
+-test everything
+
