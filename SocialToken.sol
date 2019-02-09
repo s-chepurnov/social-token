@@ -6,12 +6,9 @@ import "github.com/s-chepurnov/social-token/owned.sol";
 
 /**
  * @title SocialToken
- * @dev Very simple ERC20 Token example, where all tokens are pre-assigned to the creator.
- * Note they can later distribute these tokens as they wish using `transfer` and other
- * `ERC20` functions.
- * if (1 ETH == 100 EUR)
- * increase price by
- * One Ether is 1000000000000000000 wei
+ * 
+ * One Ether is 10e18 Wei
+ * One Euro  is 10e18 EuroWei
  */
 contract SocialToken is ERC20, owned {
 
@@ -20,8 +17,9 @@ contract SocialToken is ERC20, owned {
   uint8 public constant decimals = 12;
   uint256 public constant INITIAL_SUPPLY = 3000000000000 * (10 ** uint256(decimals));
 
-  //0.0001 Euro = 0.000001 Ether = 1000000000000 Wei
-  uint256 public priceOfOneTokenInWei = 1000000000000;
+  //0.0001 Euro = 1000000000000 EuroWei
+  uint256 public priceOfOneTokenInEuroWei = 1000000000000;
+
   uint256 private userCounter = 0;
   uint256 public transferedPeriod = 0; //uint32 possible
   uint256 public transferedValue = 0;
@@ -31,6 +29,7 @@ contract SocialToken is ERC20, owned {
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
+  //TODO: constructor should gives tokens for users.
   constructor() public {
     _mint(msg.sender, INITIAL_SUPPLY);
   }
@@ -40,6 +39,33 @@ contract SocialToken is ERC20, owned {
     uint256 amount,
     uint256 transferedValue,
     uint256 transferedPeriod
+  );
+
+  event RegisterUser(
+    address indexed newUserAddress,
+    uint256 userCounter
+  );
+
+  event IncreasePrice(
+    uint256 userCounter
+  );
+
+  event RegisterInvestment(
+    address indexed owner,
+    uint256 userCounter
+  );
+
+  event Buy(
+    uint256 amount,
+    uint256 priceOfOneTokenInWei,
+    address indexed sender
+  );
+
+  event Sell(
+    uint256 amount,
+    uint256 revenue,
+    uint256 priceOfOneTokenInWei,
+    address indexed sender
   );
 
   function trackTransfer(address to, uint256 amount) internal {
@@ -57,11 +83,6 @@ contract SocialToken is ERC20, owned {
     emit TrackTransfer(to, amount, transferedValue, transferedPeriod);
   }
 
-  event RegisterUser(
-    address indexed newUserAddress,
-    uint256 userCounter
-  );
-
   //TODO: find out -> give to user tokens or Wei?
   function registerUser(address newUserAddress) public {
     if (registeredUsers[newUserAddress] == true) {
@@ -77,21 +98,12 @@ contract SocialToken is ERC20, owned {
     emit RegisterUser(newUserAddress, userCounter);
   }
 
-  event IncreasePrice(
-    uint256 userCounter
-  );
-
   // 0.000001 Euro -> 0.00000001 Ether -> 1 000 000 000 0 Wei
   function increasePrice() internal {
       priceOfOneTokenInWei = priceOfOneTokenInWei.add(10000000000);
 
       emit IncreasePrice(priceOfOneTokenInWei);
   }
-
-  event RegisterInvestment(
-    address indexed owner,
-    uint256 userCounter
-  );
 
   function registerInvestment() onlyOwner public {
     counterInvestment = counterInvestment.add(1);
@@ -100,29 +112,21 @@ contract SocialToken is ERC20, owned {
     emit RegisterInvestment(msg.sender, counterInvestment);
   }
 
-  event Buy(
-    uint256 amount,
-    uint256 priceOfOneTokenInWei,
-    address indexed sender
-  );
-
-  function buy() payable public returns (uint amount) {
+  function buy() payable public returns (uint256 amount) {
+    uint256 rate = getExchangeRate(priceOfOneTokenInEur);
+    uint256 cents = price.USD(0);
+    return cents * 500;
     amount = msg.value/priceOfOneTokenInWei;
+    
+     
     trackTransfer(msg.sender, amount);
 
     emit Buy(amount, priceOfOneTokenInWei, msg.sender);
     return amount;
   }
 
-  event Sell(
-    uint256 amount,
-    uint256 revenue,
-    uint256 priceOfOneTokenInWei,
-    address indexed sender
-  );
-
   // read: https://github.com/ethereum/solidity/issues/3115
-  function sell(uint256 amount) public returns(uint revenue) {
+  function sell(uint256 amount) public returns(uint256 revenue) {
     trackTransfer(this, amount);              // makes the transfers
 
     //TODO: does it works? or should use the trackTransfer() ?
@@ -131,6 +135,26 @@ contract SocialToken is ERC20, owned {
 
     emit Sell(amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;
+  }
+
+ /**
+  * 1 Euro = 1e18 EuroWei 
+  *
+  * if (100Euro == 1 Ether) {
+  *   1 cent = 0.01 Euro = 0.0001 ETH = 1e14 Wei
+  *   1 cent = 0.01 Euro = 1e16 EuroWei 
+  *   
+  *   1e16         EuroWei = 1e14 Wei
+  *   currentPrice EuroWei = x Wei
+  * }
+  *
+  * return the price of one token in Wei
+  * 
+  */
+  function getPrice(uint256 currentEurPrice) internal returns(uint256 price) { 
+    uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
+    price = priceOfOneTokenInEuroWei.mul(OneCent).div(10000000000000000);
+    return price;
   }
 
 }
