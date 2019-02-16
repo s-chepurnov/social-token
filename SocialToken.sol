@@ -154,7 +154,11 @@ contract SocialToken is ERC20, owned {
   * 
   */
   function getPrice() internal returns(uint256 price) { 
-    uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
+    //uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
+
+    //TODO: remove hard coded value
+    // 0.01 Euro = 0.0001 Ether = 1e14 Wei
+    uint256 oneCent = 100000000000000;
     return priceOfOneTokenInEuroWei.mul(oneCent).div(10000000000000000);
   }
 
