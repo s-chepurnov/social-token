@@ -137,6 +137,8 @@ contract SocialToken is ERC20, owned {
     //sends Ether to the seller. It's important to do this last to avoid recursion attacks
     revenue = amount * priceOfOneTokenInWei;
     //'msg.sender.send' means the contract sends ether to 'msg.sender'
+    // TODO:
+    //https://ethereum.stackexchange.com/questions/40709/solidity-the-constructor-should-be-payable-if-you-send-value-during-transfer
     require(msg.sender.send(revenue));   
     
     emit Sell(amount, revenue, priceOfOneTokenInWei, msg.sender);
