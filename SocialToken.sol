@@ -30,7 +30,10 @@ contract SocialToken is ERC20, owned {
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
   //TODO: constructor should gives tokens for users.
-  constructor() public {
+  constructor() public payable {
+     // airdrop
+     // create pre-addresses
+     // 2 owners
     _mint(msg.sender, INITIAL_SUPPLY);
   }
 
@@ -47,7 +50,7 @@ contract SocialToken is ERC20, owned {
   );
 
   event IncreasePrice(
-    uint256 userCounter
+    uint256 currentPriceOfOneTokenInEuroWei
   );
 
   event RegisterInvestment(
@@ -127,13 +130,14 @@ contract SocialToken is ERC20, owned {
   //read: https://github.com/ethereum/solidity/issues/3115
   //amount - tokens
   //revenue - ether
-  function sell(uint256 amount) public returns(uint256 revenue) {
+  function sell(uint256 amount) public payable returns(uint256 revenue) {
     uint256 priceOfOneTokenInWei = getPrice();
     //makes the transfers of tokens
     trackTransfer(this, amount);
     //sends Ether to the seller. It's important to do this last to avoid recursion attacks
     revenue = amount * priceOfOneTokenInWei;
-    msg.sender.transfer(revenue);   
+    //'msg.sender.send' means the contract sends ether to 'msg.sender'
+    require(msg.sender.send(revenue));   
     
     emit Sell(amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;
@@ -146,7 +150,7 @@ contract SocialToken is ERC20, owned {
   *   1 cent = 0.01 Euro = 0.0001 ETH = 1e14 Wei
   *   1 cent = 0.01 Euro = 1e16 EuroWei 
   *   
-  *   1e16         EuroWei = 1e14 Wei
+  *   1e16         EuroWei = oneCent Wei (e.g. 1e14 Wei)
   *   currentPrice EuroWei = x Wei
   * }
   *
@@ -155,9 +159,8 @@ contract SocialToken is ERC20, owned {
   */
   function getPrice() internal returns(uint256 price) { 
     //uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
-
     //TODO: remove hard coded value
-    // 0.01 Euro = 0.0001 Ether = 1e14 Wei
+    //0.01 Euro = 0.0001 Ether = 1e14 Wei
     uint256 oneCent = 100000000000000;
     return priceOfOneTokenInEuroWei.mul(oneCent).div(10000000000000000);
   }
