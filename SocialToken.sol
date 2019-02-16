@@ -7,8 +7,8 @@ import "github.com/s-chepurnov/social-token/owned.sol";
 /**
  * @title SocialToken
  * 
- * One Ether is 10e18 Wei
- * One Euro  is 10e18 EuroWei
+ * One Ether is 1e18 Wei
+ * One Euro  is 1e18 EuroWei
  */
 contract SocialToken is ERC20, owned {
 
@@ -17,7 +17,7 @@ contract SocialToken is ERC20, owned {
   uint8 public constant decimals = 12;
   uint256 public constant INITIAL_SUPPLY = 3000000000000 * (10 ** uint256(decimals));
 
-  //0.0001 Euro = 1000000000000 EuroWei
+  //0.0001 Euro = 1e12EuroWei = 1000000000000 EuroWei
   uint256 public priceOfOneTokenInEuroWei = 1000000000000;
 
   uint256 private userCounter = 0;
@@ -71,38 +71,40 @@ contract SocialToken is ERC20, owned {
   function trackTransfer(address to, uint256 amount) internal {
     transfer(to, amount);
 
-    //1 000 000 Euro = 10 000 ETH = 1 000 000 000 000 000 000 000 0 Wei
+    // increase price after every 1 000 000 Euro transfered value
+    // 1 000 000 Euro = 1e24 EuroWei
     transferedValue = transferedValue.add(amount);
-    if(transferedValue >= 10000000000000000000000) {
+    if(transferedValue >= 1000000000000000000000000) {
       increasePrice();
-
-      transferedValue = transferedValue.sub(10000000000000000000000);
+      transferedValue = transferedValue.sub(1000000000000000000000000);
+      // 1 period is 1e24 EuroWei to avoid an uint256 overflow
       transferedPeriod = transferedPeriod.add(1);
     }
 
     emit TrackTransfer(to, amount, transferedValue, transferedPeriod);
   }
 
-  //TODO: find out -> give to user tokens or Wei?
   function registerUser(address newUserAddress) public {
     if (registeredUsers[newUserAddress] == true) {
       return;
     }
 
-    uint256 amount = 10000;
+    uint256 amount = 10000;//tokens
     trackTransfer(newUserAddress, amount);
 
     userCounter = userCounter.add(1);
+    //increase price by every new user
     increasePrice();
     registeredUsers[newUserAddress] = true;
     emit RegisterUser(newUserAddress, userCounter);
   }
 
-  // 0.000001 Euro -> 0.00000001 Ether -> 1 000 000 000 0 Wei
   function increasePrice() internal {
-      priceOfOneTokenInWei = priceOfOneTokenInWei.add(10000000000);
+      // increase price by 0.000001 Euro
+      // 0.000001 Euro -> 1e12 EuroWei
+      priceOfOneTokenInEuroWei = priceOfOneTokenInEuroWei.add(1000000000000);
 
-      emit IncreasePrice(priceOfOneTokenInWei);
+      emit IncreasePrice(priceOfOneTokenInEuroWei);
   }
 
   function registerInvestment() onlyOwner public {
@@ -113,26 +115,26 @@ contract SocialToken is ERC20, owned {
   }
 
   function buy() payable public returns (uint256 amount) {
-    uint256 rate = getExchangeRate(priceOfOneTokenInEur);
-    uint256 cents = price.USD(0);
-    return cents * 500;
+    uint256 priceOfOneTokenInWei = getPrice();
     amount = msg.value/priceOfOneTokenInWei;
-    
-     
+    //makes the transfers of tokens
     trackTransfer(msg.sender, amount);
 
     emit Buy(amount, priceOfOneTokenInWei, msg.sender);
     return amount;
   }
 
-  // read: https://github.com/ethereum/solidity/issues/3115
+  //read: https://github.com/ethereum/solidity/issues/3115
+  //amount - tokens
+  //revenue - ether
   function sell(uint256 amount) public returns(uint256 revenue) {
-    trackTransfer(this, amount);              // makes the transfers
-
-    //TODO: does it works? or should use the trackTransfer() ?
-    msg.sender.transfer(amount * priceOfOneTokenInWei);   // sends ether to the seller. It's important to do this last to avoid recursion attacks
+    uint256 priceOfOneTokenInWei = getPrice();
+    //makes the transfers of tokens
+    trackTransfer(this, amount);
+    //sends Ether to the seller. It's important to do this last to avoid recursion attacks
     revenue = amount * priceOfOneTokenInWei;
-
+    msg.sender.transfer(revenue);   
+    
     emit Sell(amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;
   }
@@ -151,10 +153,9 @@ contract SocialToken is ERC20, owned {
   * return the price of one token in Wei
   * 
   */
-  function getPrice(uint256 currentEurPrice) internal returns(uint256 price) { 
+  function getPrice() internal returns(uint256 price) { 
     uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
-    price = priceOfOneTokenInEuroWei.mul(OneCent).div(10000000000000000);
-    return price;
+    return priceOfOneTokenInEuroWei.mul(oneCent).div(10000000000000000);
   }
 
 }
