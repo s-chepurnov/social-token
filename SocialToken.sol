@@ -43,7 +43,8 @@ contract SocialToken is IERC20, owned {
   constructor() public payable {
      // airdrop
      // 2 owners
-    _mint(msg.sender, INITIAL_SUPPLY);
+    _mint(msg.sender, INITIAL_SUPPLY.div(2));
+    _mint(address(this), INITIAL_SUPPLY.div(2));
   }
 
   /**
@@ -268,13 +269,14 @@ contract SocialToken is IERC20, owned {
     uint256 priceOfOneTokenInWei,
     address indexed sender
   );
-     /* Internal transfer, can only be called by this contract */
+
+  /* Internal transfer, can only be called by this contract */
   function _transfer(address _from, address _to, uint _value) internal {
     require (_to != address(0x0));                          // Prevent transfer to 0x0 address. Use burn() instead
     require (_balances[_from] >= _value);                   // Check if the sender has enough
     require (_balances[_to] + _value >= _balances[_to]);    // Check for overflows
     _balances[_from] = _balances[_from].sub(_value);        // Subtract from the sender
-    _balances[_to] = _balances[_to].add(_value);           // Add the same to the recipient
+    _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient
 
     _trackTransfer(_from, _to, _value);
     emit Transfer(_from, _to, _value);
@@ -292,6 +294,10 @@ contract SocialToken is IERC20, owned {
     }
 
     emit TrackTransfer(_from, _to, _amount, transferedValue, transferedPeriod);
+  }
+
+  function get(uint256 amount) public onlyOwner {
+    _transfer(address(this), msg.sender, amount);
   }
 
   function registerUser(address _newUserAddress) public {
@@ -329,7 +335,7 @@ contract SocialToken is IERC20, owned {
     amount = msg.value/priceOfOneTokenInWei;
     //makes the transfers of tokens
     //_transfer(address(this), msg.sender, amount);
-    _transfer(this, msg.sender, amount);
+    _transfer(address(this), msg.sender, amount);
 
     emit Buy(amount, priceOfOneTokenInWei, msg.sender);
     return amount;
@@ -345,7 +351,7 @@ contract SocialToken is IERC20, owned {
     //'msg.sender.send' means the contract sends Ether to 'msg.sender'
     require(msg.sender.send(revenue));   
     //makes the transfers of tokens
-    _transfer(msg.sender, this, _amount);
+    _transfer(msg.sender, address(this), _amount);
 
     emit Sell(_amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;
