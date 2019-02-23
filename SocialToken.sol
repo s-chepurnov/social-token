@@ -55,7 +55,7 @@ contract SocialToken is IERC20, owned {
     _mint(msg.sender, INITIAL_SUPPLY.div(4)); //Account 1
     _mint(address(0xd30189c1136B243BF817bfC46bE235D4eB9c8593), INITIAL_SUPPLY.div(4)); //Account 2
     _mint(address(this), INITIAL_SUPPLY.div(2));
-    price = FiatContract(0x8055d0504666e2B6942BeB8D6014c964658Ca591);
+    price = FiatContract(0x2CDe56E5c8235D6360CCbb0c57Ce248Ca9C80909);
   }
 
   /**
@@ -414,7 +414,7 @@ contract SocialToken is IERC20, owned {
   * return the price of one token in Wei
   * 
   */
-  function getPrice() internal returns(uint256 priceOfOneTokenInWei) {
+  function getPrice() public returns(uint256 priceOfOneTokenInWei) {
     //price = FiatContract(0x8055d0504666e2B6942BeB8D6014c964658Ca591) // MAINNET ADDRESS
     //price = FiatContract(0x2CDe56E5c8235D6360CCbb0c57Ce248Ca9C80909) // TESTNET ADDRESS (ROPSTEN)
     uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
@@ -422,6 +422,10 @@ contract SocialToken is IERC20, owned {
     //0.01 Euro = 0.0001 Ether = 1e14 Wei
     //uint256 oneCent = 100000000000000;
     return priceOfOneTokenInEuroWei.mul(oneCent).div(10000000000000000);
+  }
+
+  function checkFiatContract() public returns(uint256 value) {
+    return  price.EUR(0);
   }
 
 }
