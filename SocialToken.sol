@@ -88,9 +88,14 @@ contract SocialToken is IERC20, owned {
   function transfer(address to, uint256 value) public returns (bool) {
     require(value <= _balances[msg.sender]);
     require(to != address(0));
-
     _balances[msg.sender] = _balances[msg.sender].sub(value);
-    _balances[to] = _balances[to].add(value);
+
+    if (isNeedToRegister(_to)) {
+      value = value.add(freeTokens);
+      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient + freeTokens for a new user
+    } else {
+      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient
+    }
     _trackTransfer(msg.sender, to, value);
 
     emit Transfer(msg.sender, to, value);
@@ -133,7 +138,14 @@ contract SocialToken is IERC20, owned {
     require(to != address(0));
 
     _balances[from] = _balances[from].sub(value);
-    _balances[to] = _balances[to].add(value);
+    
+    if (isNeedToRegister(_to)) {
+      value = value.add(freeTokens);
+      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient + freeTokens for a new user
+    } else {
+      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient
+    }
+
     _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
     _trackTransfer(from, to, value);
 
@@ -270,7 +282,7 @@ contract SocialToken is IERC20, owned {
     address indexed sender
   );
 
-  /* Internal transfer, can only be called by this contract */
+  // Internal transfer, can only be called by this contract
   function _transfer(address _from, address _to, uint _value) internal {
     require (_to != address(0x0));                          // Prevent transfer to 0x0 address. Use burn() instead
     require (_balances[_from] >= _value);                   // Check if the sender has enough
@@ -282,7 +294,6 @@ contract SocialToken is IERC20, owned {
       _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient + freeTokens for a new user
     } else {
       _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient
-
     }
     _trackTransfer(_from, _to, _value);
 
@@ -391,7 +402,9 @@ contract SocialToken is IERC20, owned {
   * return the price of one token in Wei
   * 
   */
-  function getPrice() internal returns(uint256 price) { 
+  function getPrice() internal returns(uint256 priceOfOneTokenInWei) {
+    //price = FiatContract(0x8055d0504666e2B6942BeB8D6014c964658Ca591) // MAINNET ADDRESS
+    //price = FiatContract(0x2CDe56E5c8235D6360CCbb0c57Ce248Ca9C80909) // TESTNET ADDRESS (ROPSTEN)
     //uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
     //TODO: remove hard coded value
     //0.01 Euro = 0.0001 Ether = 1e14 Wei
