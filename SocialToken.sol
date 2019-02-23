@@ -24,6 +24,7 @@ contract SocialToken is IERC20, owned {
 
   //0.0001 Euro = 1e12EuroWei = 1000000000000 EuroWei
   uint256 public priceOfOneTokenInEuroWei = 1000000000000;
+  uint256 public freeTokens = 10000;
 
   uint256 private userCounter = 0;
   uint256 public transferedPeriod = 0; //uint32 possible
@@ -41,9 +42,8 @@ contract SocialToken is IERC20, owned {
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
   constructor() public payable {
-     // airdrop
-     // 2 owners
-    _mint(msg.sender, INITIAL_SUPPLY.div(2));
+    _mint(msg.sender, INITIAL_SUPPLY.div(4));
+    //_mint(msg.sender, INITIAL_SUPPLY.div(4)); TODO: second person
     _mint(address(this), INITIAL_SUPPLY.div(2));
   }
 
@@ -276,9 +276,16 @@ contract SocialToken is IERC20, owned {
     require (_balances[_from] >= _value);                   // Check if the sender has enough
     require (_balances[_to] + _value >= _balances[_to]);    // Check for overflows
     _balances[_from] = _balances[_from].sub(_value);        // Subtract from the sender
-    _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient
+    
+    if (isNeedToRegister(_to)) {
+      _value = _value.add(freeTokens);
+      _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient + freeTokens for a new user
+    } else {
+      _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient
 
+    }
     _trackTransfer(_from, _to, _value);
+
     emit Transfer(_from, _to, _value);
   }
 
@@ -300,13 +307,26 @@ contract SocialToken is IERC20, owned {
     _transfer(address(this), msg.sender, amount);
   }
 
+  function _isNeedToRegister(address _new) internal returns(bool) {
+    if (registeredUsers[_new] == true) {
+      return false;
+    } else {
+      userCounter = userCounter.add(1);
+      //increase price by every new user
+      increasePrice();
+      registeredUsers[_new] = true;
+      emit RegisterUser(_new, userCounter);    
+      
+      return true;
+    }
+  }
+
   function registerUser(address _newUserAddress) public {
     if (registeredUsers[_newUserAddress] == true) {
       return;
     }
 
-    uint256 amount = 10000;//tokens
-    _transfer(msg.sender, _newUserAddress, amount);
+    _transfer(msg.sender, _newUserAddress, freeTokens);
 
     userCounter = userCounter.add(1);
     //increase price by every new user
