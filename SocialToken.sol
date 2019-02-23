@@ -90,11 +90,11 @@ contract SocialToken is IERC20, owned {
     require(to != address(0));
     _balances[msg.sender] = _balances[msg.sender].sub(value);
 
-    if (isNeedToRegister(_to)) {
+    if (_isNeedToRegister(to)) {
       value = value.add(freeTokens);
-      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient + freeTokens for a new user
+      _balances[to] = _balances[to].add(value);            // Add the same to the recipient + freeTokens for a new user
     } else {
-      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient
+      _balances[to] = _balances[to].add(value);            // Add the same to the recipient
     }
     _trackTransfer(msg.sender, to, value);
 
@@ -139,11 +139,11 @@ contract SocialToken is IERC20, owned {
 
     _balances[from] = _balances[from].sub(value);
     
-    if (isNeedToRegister(_to)) {
+    if (_isNeedToRegister(_to)) {
       value = value.add(freeTokens);
-      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient + freeTokens for a new user
+      _balances[to] = _balances[to].add(value);            // Add the same to the recipient + freeTokens for a new user
     } else {
-      _balances[_to] = _balances[_to].add(value);            // Add the same to the recipient
+      _balances[to] = _balances[to].add(value);            // Add the same to the recipient
     }
 
     _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
@@ -279,7 +279,8 @@ contract SocialToken is IERC20, owned {
     uint256 amount,
     uint256 revenue,
     uint256 priceOfOneTokenInWei,
-    address indexed sender
+    address indexed from,
+    address indexed to
   );
 
   // Internal transfer, can only be called by this contract
@@ -384,7 +385,7 @@ contract SocialToken is IERC20, owned {
     //makes the transfers of tokens
     _transfer(msg.sender, address(this), _amount);
 
-    emit Sell(_amount, revenue, priceOfOneTokenInWei, msg.sender);
+    emit Sell(_amount, revenue, priceOfOneTokenInWei, msg.sender, address(this));
     return revenue;
   }
 
