@@ -4,6 +4,15 @@ import "github.com/s-chepurnov/social-token/SafeMath.sol";
 import "github.com/s-chepurnov/social-token/ERC20.sol";
 import "github.com/s-chepurnov/social-token/owned.sol";
 
+
+contract FiatContract {
+  function ETH(uint _id) constant returns (uint256);
+  function USD(uint _id) constant returns (uint256);
+  function EUR(uint _id) constant returns (uint256);
+  function GBP(uint _id) constant returns (uint256);
+  function updatedAt(uint _id) constant returns (uint);
+}
+
 /**
  * @title SocialToken
  * 
