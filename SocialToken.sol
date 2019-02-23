@@ -31,6 +31,7 @@ contract SocialToken is IERC20, owned {
   uint256 public transferedValue = 0;
   uint256 public counterInvestment = 1; //uint8 possible
   mapping (address => bool) private registeredUsers;
+  FiatContract public price;
 
   //standart
   mapping (address => uint256) private _balances;
@@ -45,6 +46,7 @@ contract SocialToken is IERC20, owned {
     _mint(msg.sender, INITIAL_SUPPLY.div(4));
     //_mint(msg.sender, INITIAL_SUPPLY.div(4)); TODO: second person
     _mint(address(this), INITIAL_SUPPLY.div(2));
+    price = FiatContract(0x8055d0504666e2B6942BeB8D6014c964658Ca591);
   }
 
   /**
@@ -406,10 +408,10 @@ contract SocialToken is IERC20, owned {
   function getPrice() internal returns(uint256 priceOfOneTokenInWei) {
     //price = FiatContract(0x8055d0504666e2B6942BeB8D6014c964658Ca591) // MAINNET ADDRESS
     //price = FiatContract(0x2CDe56E5c8235D6360CCbb0c57Ce248Ca9C80909) // TESTNET ADDRESS (ROPSTEN)
-    //uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
+    uint256 oneCent = price.EUR(0);// return price of 0.01 Euro in Wei
     //TODO: remove hard coded value
     //0.01 Euro = 0.0001 Ether = 1e14 Wei
-    uint256 oneCent = 100000000000000;
+    //uint256 oneCent = 100000000000000;
     return priceOfOneTokenInEuroWei.mul(oneCent).div(10000000000000000);
   }
 
