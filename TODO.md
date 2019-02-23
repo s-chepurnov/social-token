@@ -29,3 +29,7 @@ II.Current task or last step description:
 
 -test everything
 
+// TODO:
+//https://ethereum.stackexchange.com/questions/40709/solidity-the-constructor-should-be-payable-if-you-send-value-during-transfer
+
+

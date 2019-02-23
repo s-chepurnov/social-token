@@ -38,6 +38,7 @@ contract SocialToken is ERC20, owned {
   }
 
   event TrackTransfer(
+    address indexed from,	  
     address indexed to,
     uint256 amount,
     uint256 transferedValue,
@@ -70,13 +71,22 @@ contract SocialToken is ERC20, owned {
     uint256 priceOfOneTokenInWei,
     address indexed sender
   );
+     /* Internal transfer, can only be called by this contract */
+  function _transfer(address _from, address _to, uint _value) internal {
+    require (_to != address(0x0));                          // Prevent transfer to 0x0 address. Use burn() instead
+    require (_balances[_from] >= _value);                   // Check if the sender has enough
+    require (_balances[_to] + _value >= _balances[_to]);    // Check for overflows
+    _balances[_from] = _balances[_from].sub(_value);        // Subtract from the sender
+    _balances[_to] = _balances[_to].add(_value);           // Add the same to the recipient
+    emit Transfer(_from, _to, _value);
+  }
 
-  function trackTransfer(address to, uint256 amount) internal {
-    transfer(to, amount);
+  function _trackTransfer(address _from, address _to, uint256 _amount) internal {
+    _transfer(_from, _to, _amount);
 
     // increase price after every 1 000 000 Euro transfered value
     // 1 000 000 Euro = 1e24 EuroWei
-    transferedValue = transferedValue.add(amount);
+    transferedValue = transferedValue.add(_amount);
     if(transferedValue >= 1000000000000000000000000) {
       increasePrice();
       transferedValue = transferedValue.sub(1000000000000000000000000);
@@ -84,22 +94,22 @@ contract SocialToken is ERC20, owned {
       transferedPeriod = transferedPeriod.add(1);
     }
 
-    emit TrackTransfer(to, amount, transferedValue, transferedPeriod);
+    emit TrackTransfer(_from, _to, _amount, transferedValue, transferedPeriod);
   }
 
-  function registerUser(address newUserAddress) public {
-    if (registeredUsers[newUserAddress] == true) {
+  function registerUser(address _newUserAddress) public {
+    if (registeredUsers[_newUserAddress] == true) {
       return;
     }
 
     uint256 amount = 10000;//tokens
-    trackTransfer(newUserAddress, amount);
+    _trackTransfer(address(this), _newUserAddress, amount);
 
     userCounter = userCounter.add(1);
     //increase price by every new user
     increasePrice();
-    registeredUsers[newUserAddress] = true;
-    emit RegisterUser(newUserAddress, userCounter);
+    registeredUsers[_newUserAddress] = true;
+    emit RegisterUser(_newUserAddress, userCounter);
   }
 
   function increasePrice() internal {
@@ -121,7 +131,8 @@ contract SocialToken is ERC20, owned {
     uint256 priceOfOneTokenInWei = getPrice();
     amount = msg.value/priceOfOneTokenInWei;
     //makes the transfers of tokens
-    trackTransfer(msg.sender, amount);
+    //_transfer(address(this), msg.sender, amount);
+    _trackTransfer(address(this), msg.sender, amount);
 
     emit Buy(amount, priceOfOneTokenInWei, msg.sender);
     return amount;
@@ -130,18 +141,16 @@ contract SocialToken is ERC20, owned {
   //read: https://github.com/ethereum/solidity/issues/3115
   //amount - tokens
   //revenue - ether
-  function sell(uint256 amount) public payable returns(uint256 revenue) {
+  function sell(uint256 _amount) public payable returns(uint256 revenue) {
     uint256 priceOfOneTokenInWei = getPrice();
-    //makes the transfers of tokens
-    trackTransfer(this, amount);
     //sends Ether to the seller. It's important to do this last to avoid recursion attacks
-    revenue = amount * priceOfOneTokenInWei;
-    //'msg.sender.send' means the contract sends ether to 'msg.sender'
-    // TODO:
-    //https://ethereum.stackexchange.com/questions/40709/solidity-the-constructor-should-be-payable-if-you-send-value-during-transfer
+    revenue = _amount * priceOfOneTokenInWei;
+    //'msg.sender.send' means the contract sends Ether to 'msg.sender'
     require(msg.sender.send(revenue));   
-    
-    emit Sell(amount, revenue, priceOfOneTokenInWei, msg.sender);
+    //makes the transfers of tokens
+    _trackTransfer(msg.sender, address(this), _amount);
+
+    emit Sell(_amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;
   }
 
