@@ -52,8 +52,8 @@ contract SocialToken is IERC20, owned {
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
   constructor() public payable {
-    _mint(msg.sender, INITIAL_SUPPLY.div(4));
-    //_mint(msg.sender, INITIAL_SUPPLY.div(4)); TODO: second person
+    _mint(msg.sender, INITIAL_SUPPLY.div(4)); //Account 1
+    _mint(address(0xd30189c1136B243BF817bfC46bE235D4eB9c8593), INITIAL_SUPPLY.div(4)); //Account 2
     _mint(address(this), INITIAL_SUPPLY.div(2));
     price = FiatContract(0x8055d0504666e2B6942BeB8D6014c964658Ca591);
   }
