@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.4.24;
 
 import "github.com/s-chepurnov/social-token/SafeMath.sol";
 import "github.com/s-chepurnov/social-token/ERC20.sol";
@@ -329,7 +329,7 @@ contract SocialToken is IERC20, owned {
     amount = msg.value/priceOfOneTokenInWei;
     //makes the transfers of tokens
     //_transfer(address(this), msg.sender, amount);
-    _transfer(address(this), msg.sender, amount);
+    _transfer(this, msg.sender, amount);
 
     emit Buy(amount, priceOfOneTokenInWei, msg.sender);
     return amount;
@@ -345,7 +345,7 @@ contract SocialToken is IERC20, owned {
     //'msg.sender.send' means the contract sends Ether to 'msg.sender'
     require(msg.sender.send(revenue));   
     //makes the transfers of tokens
-    _transfer(msg.sender, address(this), _amount);
+    _transfer(msg.sender, this, _amount);
 
     emit Sell(_amount, revenue, priceOfOneTokenInWei, msg.sender);
     return revenue;

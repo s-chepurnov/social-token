@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.4.24;
 
 import "github.com/s-chepurnov/social-token/SafeMath.sol";
 
