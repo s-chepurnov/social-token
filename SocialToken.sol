@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.4;
 
 import "github.com/s-chepurnov/social-token/SafeMath.sol";
 import "github.com/s-chepurnov/social-token/ERC20.sol";
@@ -40,7 +40,7 @@ contract SocialToken is IERC20, owned {
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
-  constructor() public {
+  constructor() public payable {
      // airdrop
      // 2 owners
     _mint(msg.sender, INITIAL_SUPPLY);
