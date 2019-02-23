@@ -139,7 +139,7 @@ contract SocialToken is IERC20, owned {
 
     _balances[from] = _balances[from].sub(value);
     
-    if (_isNeedToRegister(_to)) {
+    if (_isNeedToRegister(to)) {
       value = value.add(freeTokens);
       _balances[to] = _balances[to].add(value);            // Add the same to the recipient + freeTokens for a new user
     } else {
@@ -290,7 +290,7 @@ contract SocialToken is IERC20, owned {
     require (_balances[_to] + _value >= _balances[_to]);    // Check for overflows
     _balances[_from] = _balances[_from].sub(_value);        // Subtract from the sender
     
-    if (isNeedToRegister(_to)) {
+    if (_isNeedToRegister(_to)) {
       _value = _value.add(freeTokens);
       _balances[_to] = _balances[_to].add(_value);            // Add the same to the recipient + freeTokens for a new user
     } else {
