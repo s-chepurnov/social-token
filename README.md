@@ -1,25 +1,14 @@
 # social-token
 
-test
-contract address
-0x692a70d2e424a56d2c6c27aa97d1a86395877b3a
+## description and functionality
 
-user1 address
-0xbbf289d846208c16edc8474705c748aff07732db
+The initial Price of the token is 0,0001 Euro
+Total supply 3 trillions tokens (3*(10^12))
+Every new user get 10 000 tokens for free
 
-user2 address
-0x702a70d2e424a56d2c6c27aa97d1a86395877b3a
-
-user3 address
-0x712a70d2e424a56d2c6c27aa97d1a86395877b3a
+The price is changed by 3 events:
+- every new user in a system cause increasing price by 0,000001 Euro
+- every new investment project cause increasing price by 0,000001 Euro
+- every 1 000 000 Euro transaction cause increasing price by 0,000001 Euro
 
 
-
-
-Ropsten
-
-Faucet for free ether:
-curl -X POST  -H "Content-Type: application/json" -d '{"toWhom":"0x303b053d3c0ba7036ba14186e47574690ee3f998"}' https://ropsten.faucet.b9lab.com/tap
-
-Balance:
-https://ropsten.etherscan.io/address/0x303b053d3c0ba7036ba14186e47574690ee3f998
