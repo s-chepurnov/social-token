@@ -1,6 +1,6 @@
 # social-token
 
-##address
+## address
 
 https://etherscan.io/address/0xd80f47b5ab209feee27cd4467499a79d010bb948
 
